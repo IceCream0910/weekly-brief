@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchRssFeed } from '@/app/utils/rssToJson';
 import { list, put } from '@vercel/blob';
 
-export const runtime = 'edge'; // Enable Vercel Edge Function
+export const config = {
+    runtime: 'nodejs',
+    maxDuration: 60,
+};
 
 async function callLlmApi(newsData: any) {
     try {
@@ -84,7 +87,7 @@ async function callLlmApi(newsData: any) {
                 link: item.link,
                 content: item.content || item.description || ''
             })),
-            summary: "알 수 없는 오류로 인해 요약을 생성하지 못했어요." // Provide an empty summary on error
+            summary: "알 수 없는 오류로 요약을 생성하지 못했어요." // Provide an empty summary on error
         };
     }
 }
@@ -127,49 +130,14 @@ async function handleUpdate() {
 }
 
 export async function GET(request: NextRequest) {
-    const stream = new ReadableStream({
-        async start(controller) {
-            let closed = false;
-            // Send pending status periodically
-            const intervalId = setInterval(() => {
-                if (closed) return;
-                const message = `data: ${JSON.stringify({ status: "processing update..." })}\n\n`;
-                controller.enqueue(new TextEncoder().encode(message));
-            }, 5000); // Send every 5 seconds
-
-            try {
-                const result = await handleUpdate();
-                if (!closed) {
-                    clearInterval(intervalId);
-                    closed = true;
-                    const finalMessage = `data: ${JSON.stringify(result)}\n\n`;
-                    controller.enqueue(new TextEncoder().encode(finalMessage));
-                    controller.close();
-                }
-            } catch (error) {
-                console.error('뉴스 업데이트 오류 (stream):', error);
-                if (!closed) {
-                    clearInterval(intervalId);
-                    closed = true;
-                    const errorMessage = `data: ${JSON.stringify({ error: '뉴스 데이터를 업데이트하는 중 오류가 발생했습니다.', details: error instanceof Error ? error.message : String(error) })}\n\n`;
-                    controller.enqueue(new TextEncoder().encode(errorMessage));
-                    controller.close();
-                }
-            } finally {
-                // Ensure cleanup happens even if errors occur before closing
-                if (!closed) {
-                    clearInterval(intervalId);
-                    controller.close();
-                }
-            }
-        }
-    });
-
-    return new Response(stream, {
-        headers: {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-        },
-    });
+    try {
+        const result = await handleUpdate();
+        return NextResponse.json(result);
+    } catch (error) {
+        console.error('뉴스 업데이트 오류:', error);
+        return NextResponse.json(
+            { error: '뉴스 데이터를 업데이트하는 중 오류가 발생했습니다.' },
+            { status: 500 }
+        );
+    }
 }
