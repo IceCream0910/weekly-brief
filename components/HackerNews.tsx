@@ -45,7 +45,8 @@ function HackerNews() {
                 <Spacer key={'s-0'} x={1} />,
                 ...news.map((item, index) => (
                     <CardView key={index} title={item.title} description={item.description} href={item.url} />
-                ))
+                )),
+                <Spacer key={'s-0'} x={1} />
             ]} />
 
             <StreamText text={summary}

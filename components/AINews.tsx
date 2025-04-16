@@ -45,7 +45,8 @@ function AINews() {
                 <Spacer key={'s-0'} x={1} />,
                 ...news.map((item, index) => (
                     <CardView key={index} description={item.description} href={item.link} />
-                ))
+                )),
+                <Spacer key={'s-0'} x={1} />
             ]} />
 
             <StreamText text={summary}
