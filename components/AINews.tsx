@@ -5,22 +5,22 @@ import CardView from './Card';
 import { Button, Skeleton, Spacer } from '@heroui/react';
 import { Loader } from './Loader';
 import StreamText from './StreamText';
-import { Link } from '@heroui/link';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface NewsItem {
-    image?: string;
-    title: string;
     description?: string;
-    url: string;
+    link: string;
 }
 
-function HackerNews() {
+function AINews() {
     const [news, setNews] = React.useState<NewsItem[]>([]);
     const [summary, setSummary] = React.useState<string>('');
     const [loading, setLoading] = React.useState(true);
+    const router = useRouter();
 
     useEffect(() => {
-        fetch('/api/hackerNews/get')
+        fetch('/api/ainews/get')
             .then((res) => res.json())
             .then((data) => {
                 setNews(data.items);
@@ -39,12 +39,12 @@ function HackerNews() {
 
     return (
         <div className="mt-6">
-            <h3 className="text-base font-semibold">Hacker News에서 인기있었던 글들이에요.</h3>
+            <h3 className="text-base font-semibold">이번 주에 나온 AI 소식이에요.</h3>
 
             <HorizontalScroller children={[
                 <Spacer key={'s-0'} x={1} />,
                 ...news.map((item, index) => (
-                    <CardView key={index} title={item.title} description={item.description} href={item.url} />
+                    <CardView key={index} description={item.description} href={item.link} />
                 ))
             ]} />
 
@@ -54,8 +54,14 @@ function HackerNews() {
                 direction="top"
                 className="mt-2 text-gray-500 dark:text-gray-400 break-keep break-words text-balance"
             />
+
+            <Link href="https://www.threads.net/@choi.openai" target='_blank'>
+                <Button className='mt-4' variant="bordered" size="sm">
+                    더 많은 뉴스 보기
+                </Button>
+            </Link>
         </div>
     );
 }
 
-export default HackerNews;
+export default AINews;

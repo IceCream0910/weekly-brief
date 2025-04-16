@@ -4,19 +4,19 @@ import { Link } from "@heroui/link";
 
 interface CardProps {
     image?: string;
-    title: string;
+    title?: string;
     description?: string;
     href?: string;
 }
 
-const formatDescription = (title: string, description?: string): string => {
+const formatDescription = (title?: string, description?: string): string => {
     if (!description) return "";
     const plainText = description.replace(/<[^>]*>/g, "");
 
     const totalCharacterBudget = 100;
 
-    const titleLength = title.length;
-    const maxDescriptionLength = Math.max(40, totalCharacterBudget - titleLength);
+    const titleLength = title?.length;
+    const maxDescriptionLength = Math.max(40, totalCharacterBudget - (titleLength || 0));
 
     if (plainText.length <= maxDescriptionLength) return plainText;
 
@@ -39,9 +39,8 @@ export default function CardView({ image, title, description, href }: CardProps)
                 }
 
                 <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-                    <h4 className="font-bold text-large">{title}</h4>
-                    <Spacer y={2} />
-                    {formattedDescription && <small className="text-default-500 ">{formattedDescription}</small>}
+                    {title && <h4 className="font-bold text-large mb-2">{title}</h4>}
+                    {formattedDescription && <small className="text-default-500 mb-2">{formattedDescription}</small>}
                 </CardHeader>
             </Card>
         </Link>

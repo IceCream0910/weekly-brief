@@ -64,7 +64,7 @@ export async function fetchRssFeed(url: string): Promise<RssFeed> {
                 title: entry.querySelector("title")?.textContent || '',
                 description: entry.querySelector("summary")?.textContent || entry.querySelector("content")?.textContent || '',
                 link: entry.querySelector("link")?.getAttribute("href") || '',
-                pubDate: entry.querySelector("updated")?.textContent || entry.querySelector("published")?.textContent || undefined,
+                pubDate: entry.querySelector("pubDate")?.textContent || entry.querySelector("updated")?.textContent || entry.querySelector("published")?.textContent || undefined,
                 author: entry.querySelector("author > name")?.textContent || undefined,
                 categories: Array.from(entry.querySelectorAll("category")).map(c => c.getAttribute("term") || '').filter(Boolean),
                 guid: entry.querySelector("id")?.textContent || undefined,

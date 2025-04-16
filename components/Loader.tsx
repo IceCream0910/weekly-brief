@@ -3,7 +3,6 @@ import { Spacer, Skeleton } from "@heroui/react";
 export function Loader() {
     return (
         <div className='mt-6'>
-            <h3 className="text-base font-semibold">HackerNews에서 인기있었던 글들이에요.</h3>
             <Spacer y={3} />
 
             <div className='flex gap-1'>

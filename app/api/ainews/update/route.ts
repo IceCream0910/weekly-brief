@@ -15,6 +15,7 @@ const getCurrentWeekLabel = (date: Date): string => {
     return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
 };
 
+
 async function callLlmApi(newsData: any) {
     try {
         const response = await fetch(`${process.env.APP_URL}/api/llm`, {
@@ -24,7 +25,7 @@ async function callLlmApi(newsData: any) {
             },
             body: JSON.stringify({
                 newsData,
-                instruction: "## `items` 선정\njson 배열로 주어지는 전체 뉴스 기사들 중 일주일 동안의 이슈를 요약할 만한 주요 기사를 10개 내외로 선택하여 `items` 배열에 추가해.\n- 각 item의 모든 값들은 주어진 전체 기사에서의 해당 item이 가진 값들과 동일하게 작성해(추가적인 요약이나 변형 불필요).\n-기사의 주제가 중복되어서는 안돼.\n- 같은 주제지만 사건이 시간이 흐름에 따라 진행된 경우 가장 마지막 기사를 선정하고, 향후 요약문에 전체 흐름을 포함해.\n\n## `summary` 작성\n- 요약문은 선택한 기사의 내용을 모두 읽지 않고도 각각의 세부 내용까지 빠르게 읽을 수 있도록 간결하면서도 상세하게 작성해야 하며, 문장의 종결어미는 `~요.`와 같이 친근한 대화체로 해줘(반말을 하지는 마)\n- 요약문은 앞에서 선정한 각 item의 content 값을 바탕으로 작성해야 해.\n- 총 분량은 10문장 내외로 해줘.",
+                instruction: "## `items` 선정\njson 배열로 주어지는 전체 AI 소식들 중 일주일 동안의 이슈를 요약할 만한 주요 소식을 10개 내외로 선택하여 `items` 배열에 추가해.\n- 각 item의 모든 값들은 주어진 전체 소식에서의 해당 item이 가진 값들과 동일하게 작성해(추가적인 요약이나 변형 불필요).\n-같은 주제가 중복되어서는 안돼.\n- 같은 주제지만 사건이 시간이 흐름에 따라 진행된 경우 가장 마지막 소식을 선정하고, 향후 요약문에 전체 흐름을 포함해.\n\n## `summary` 작성\n- 요약문은 선정한 소식 각각의 세부 내용까지 빠르게 읽을 수 있도록 간결하면서도 상세하게 작성해야 하며, 문장의 종결어미는 `~요.`와 같이 친근한 대화체로 해줘(반말은 하지 마).\n- 총 분량은 10문장 내외로 해줘.",
                 outputStructure: {
                     type: "object",
                     properties: {
@@ -33,12 +34,10 @@ async function callLlmApi(newsData: any) {
                             items: {
                                 type: "object",
                                 properties: {
-                                    title: { type: "string" },
                                     description: { type: "string" },
                                     link: { type: "string" },
-                                    content: { type: "string" }
                                 },
-                                required: ["title", "description", "link", "content"]
+                                required: ["description", "link"]
                             }
                         },
                         summary: { type: "string" }
@@ -56,7 +55,6 @@ async function callLlmApi(newsData: any) {
             throw new Error('LLM API 응답 본문이 없습니다.');
         }
 
-        // Process the streaming response
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let result = '';
@@ -68,30 +66,26 @@ async function callLlmApi(newsData: any) {
 
             result += decoder.decode(value, { stream: true });
 
-            // Process line by line
             const lines = result.split('\n');
-            result = lines.pop() || ''; // Keep the last partial line
+            result = lines.pop() || '';
 
             for (const line of lines) {
                 if (line.startsWith('data:')) {
                     const jsonData = line.substring(5).trim();
                     try {
                         finalData = JSON.parse(jsonData);
-                        // Found the final data, no need to process further
-                        await reader.cancel(); // Stop reading the stream
+                        await reader.cancel();
                         break;
                     } catch (e) {
                         console.error('LLM 응답 JSON 파싱 오류:', e, 'Data:', jsonData);
-                        // Continue reading in case it's a partial JSON in the stream
                     }
                 } else if (line.trim() === 'pending') {
                     // Ignore pending messages
                 }
             }
-            if (finalData) break; // Exit loop once final data is parsed
+            if (finalData) break;
         }
 
-        // Handle case where stream ended without final data
         if (!finalData && result.startsWith('data:')) {
             const jsonData = result.substring(5).trim();
             try {
@@ -110,15 +104,12 @@ async function callLlmApi(newsData: any) {
 
     } catch (error) {
         console.error('LLM API 호출 오류:', error);
-        // Fallback to returning only items without summary in case of LLM failure
         return {
             items: newsData.map((item: any) => ({
-                title: item.title,
                 description: item.description || '',
-                link: item.link,
-                content: item.content || item.description || ''
+                link: item.link
             })),
-            summary: "알 수 없는 오류로 요약을 생성하지 못했어요." // Provide an empty summary on error
+            summary: "알 수 없는 오류로 요약을 생성하지 못했어요."
         };
     }
 }
@@ -126,7 +117,7 @@ async function callLlmApi(newsData: any) {
 async function handleUpdate() {
     const currentWeekLabel = getCurrentWeekLabel(new Date());
 
-    const newsFeed = await fetchRssFeed("https://www.yonhapnewstv.co.kr/category/news/headline/feed/");
+    const newsFeed = await fetchRssFeed("https://rss.app/feeds/tLVoDtyUrmq0EQMf.xml");
     const newNewsItems = newsFeed.items || [];
 
     const { blobs } = await list();
@@ -143,11 +134,7 @@ async function handleUpdate() {
                 if (storedData && typeof storedData === 'object' && storedData.lastUpdateWeekLabel && Array.isArray(storedData.items)) {
                     lastUpdateWeekLabel = storedData.lastUpdateWeekLabel;
                     existingNewsItems = storedData.items;
-                } else {
-                    console.log("기존 weeklyNews.json 데이터 형식이 다르거나 유효하지 않습니다. 새 주차로 간주합니다.");
                 }
-            } else {
-                console.error(`Failed to fetch weeklyNews.json: ${response.status}. 새 주차로 간주합니다.`);
             }
         } catch (error) {
             console.error("Error fetching or parsing weeklyNews.json:", error, ". 새 주차로 간주합니다.");
@@ -170,23 +157,22 @@ async function handleUpdate() {
         items: combinedNewsItems
     };
 
-    await put('weeklyNews.json', JSON.stringify(dataToStore), {
+    await put('aiWeeklyNews.json', JSON.stringify(dataToStore), {
         access: 'public',
         allowOverwrite: true
     });
 
     const processedData = await callLlmApi(combinedNewsItems);
 
-    await put('newsResult.json', JSON.stringify(processedData), {
+    await put('ainewsResult.json', JSON.stringify(processedData), {
         access: 'public',
         allowOverwrite: true
     });
 
     return {
-        message: `뉴스 업데이트 완료 (${currentWeekLabel})`,
-        newItemsCount: uniqueNewItems.length,
-        totalItemsCount: combinedNewsItems.length,
-        newsResultSummary: processedData.summary ? processedData.summary.substring(0, 50) + '...' : '요약 없음',
+        message: '뉴스 업데이트 완료',
+        combinedNewsItems: combinedNewsItems,
+        newsResult: processedData,
     };
 }
 

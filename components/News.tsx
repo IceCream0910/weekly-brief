@@ -2,9 +2,10 @@
 import React, { useEffect } from 'react';
 import HorizontalScroller from './HorizontalScroller';
 import CardView from './Card';
-import { Skeleton, Spacer } from '@heroui/react';
+import { Button, Skeleton, Spacer } from '@heroui/react';
 import { Loader } from './Loader';
 import StreamText from './StreamText';
+import { useRouter } from 'next/navigation';
 
 interface NewsItem {
     image?: string;
@@ -13,10 +14,11 @@ interface NewsItem {
     link: string;
 }
 
-function HackerNews() {
+function News() {
     const [news, setNews] = React.useState<NewsItem[]>([]);
     const [summary, setSummary] = React.useState<string>('');
     const [loading, setLoading] = React.useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         fetch('/api/news/get')
@@ -48,13 +50,17 @@ function HackerNews() {
             ]} />
 
             <StreamText text={summary}
-                delay={50}
+                delay={25}
                 animateBy="words"
                 direction="top"
                 className="mt-2 text-gray-500 dark:text-gray-400 break-keep break-words text-balance"
             />
+
+            <Button className='mt-4' variant="bordered" size="sm" onPress={() => router.push('/news')}>
+                더 많은 뉴스 보기
+            </Button>
         </div>
     );
 }
 
-export default HackerNews;
+export default News;

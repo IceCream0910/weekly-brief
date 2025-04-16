@@ -4,25 +4,34 @@ export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
     try {
-        // Parse request body to get newsData
-        const { newsData } = await request.json();
+        const { newsData, instruction, outputStructure } = await request.json();
 
-        // Create a readable stream for the response
         const stream = new ReadableStream({
             async start(controller) {
                 try {
-                    // Construct the Gemini API request
+                    const generationConfig: {
+                        temperature: number;
+                        responseMimeType: string;
+                        responseSchema?: any;
+                    } = {
+                        temperature: 0.5,
+                        responseMimeType: "application/json",
+                    };
+
+                    if (outputStructure) {
+                        generationConfig.responseSchema = outputStructure;
+                    }
+
                     const geminiRequest = {
                         contents: [
                             {
                                 role: 'user',
                                 parts: [
                                     {
-                                        text: "## `items` 선정\njson 배열로 주어지는 전체 뉴스 기사들 중 일주일 동안의 이슈를 요약할 만한 주요 기사를 10개 내외로 선택하여 `items` 배열에 추가해. 이때 각 item의 모든 값들은 주어진 전체 기사에서의 해당 item이 가진 값들과 동일하게 작성해(추가적인 요약이나 변형 불필요).\n\n## `summary` 작성\n- 요약문은 선택한 기사의 내용을 모두 읽지 않고도 각각의 세부 내용까지 빠르게 읽을 수 있도록 간결하면서도 상세하게 작성해야 하며, 문장의 종결어미는 `~요.`와 같이 친근한 대화체로 해줘.\n- 요약문은 앞에서 선정한 각 item의 content 값을 바탕으로 작성해야 해.\n- 총 분량은 10문장 내외로 해줘."
+                                        text: instruction
                                     }
                                 ]
                             },
-
                             {
                                 role: 'user',
                                 parts: [
@@ -32,30 +41,7 @@ export async function POST(request: NextRequest) {
                                 ]
                             }
                         ],
-                        generationConfig: {
-                            temperature: 0.5,
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "object",
-                                properties: {
-                                    items: {
-                                        type: "array",
-                                        items: {
-                                            type: "object",
-                                            properties: {
-                                                title: { type: "string" },
-                                                description: { type: "string" },
-                                                link: { type: "string" },
-                                                content: { type: "string" }
-                                            },
-                                            required: ["title", "description", "link", "content"]
-                                        }
-                                    },
-                                    summary: { type: "string" }
-                                },
-                                required: ["items", "summary"]
-                            }
-                        }
+                        generationConfig: generationConfig
                     };
 
                     // Call Gemini API
