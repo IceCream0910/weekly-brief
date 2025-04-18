@@ -20,7 +20,7 @@ function HackerNews() {
     const [loading, setLoading] = React.useState(true);
 
     useEffect(() => {
-        fetch('/api/hackerNews/get')
+        fetch('/api/hackerNews/get', { cache: 'no-store' })
             .then((res) => res.json())
             .then((data) => {
                 setNews(data.items);

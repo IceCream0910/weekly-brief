@@ -22,6 +22,7 @@ async function callLlmApi(newsData: any) {
                     required: ["summary"]
                 }
             }),
+            cache: 'no-store'
         });
 
         if (!response.ok) {
@@ -93,7 +94,7 @@ async function callLlmApi(newsData: any) {
 }
 
 async function handleUpdate() {
-    const hackerNewsResponse = await fetch(`${process.env.APP_URL}/api/hackerNews`);
+    const hackerNewsResponse = await fetch(`${process.env.APP_URL}/api/hackerNews`, { cache: 'no-store' });
     if (!hackerNewsResponse.ok) {
         throw new Error(`Failed to fetch Hacker News: ${hackerNewsResponse.status} ${await hackerNewsResponse.text()}`);
     }

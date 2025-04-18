@@ -21,7 +21,7 @@ function News() {
     const router = useRouter();
 
     useEffect(() => {
-        fetch('/api/news/get')
+        fetch('/api/news/get', { cache: 'no-store' })
             .then((res) => res.json())
             .then((data) => {
                 setNews(data.items);

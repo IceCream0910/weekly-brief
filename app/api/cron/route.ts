@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
                     controller.enqueue(encoder.encode(` -> ${target.prefix}: ${target.url}\n`));
                 });
 
-                const fetchPromises = updateTargets.map(target => fetch(target.url).then(response => ({ response, target })));
+                const fetchPromises = updateTargets.map(target => fetch(target.url, { cache: 'no-store' }).then(response => ({ response, target })));
                 const fetchResults = await Promise.allSettled(fetchPromises);
 
                 controller.enqueue(encoder.encode("Initial fetch responses received. Processing streams...\n"));

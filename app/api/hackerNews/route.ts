@@ -10,7 +10,7 @@ interface HackerNewsTopic {
 
 export async function GET(request: NextRequest) {
     try {
-        const response = await fetch('https://news.hada.io');
+        const response = await fetch('https://news.hada.io', { cache: 'no-store' });
         if (!response.ok) {
             throw new Error(`Failed to fetch news.hada.io: ${response.statusText}`);
         }

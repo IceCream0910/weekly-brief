@@ -125,7 +125,7 @@ async function handleUpdate() {
     const currentWeekLabel = getCurrentWeekLabel(new Date());
 
     const rssUrl = "https://www.yonhapnewstv.co.kr/category/news/headline/feed/";
-    const rssResponse = await fetch(`${process.env.APP_URL}/api/rssToJson?url=${encodeURIComponent(rssUrl)}`);
+    const rssResponse = await fetch(`${process.env.APP_URL}/api/rssToJson?url=${encodeURIComponent(rssUrl)}`, { cache: 'no-store' });
 
     if (!rssResponse.ok) {
         throw new Error(`Failed to fetch RSS feed via API: ${rssResponse.status} ${await rssResponse.text()}`);
@@ -141,7 +141,7 @@ async function handleUpdate() {
 
     if (weeklyNewsBlob) {
         try {
-            const response = await fetch(weeklyNewsBlob.url);
+            const response = await fetch(weeklyNewsBlob.url, { cache: 'no-store' });
             if (response.ok) {
                 const storedData = await response.json();
                 if (storedData && typeof storedData === 'object' && storedData.lastUpdateWeekLabel && Array.isArray(storedData.items)) {

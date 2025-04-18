@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const response = await fetch(newsResultBlob.url);
+        const response = await fetch(newsResultBlob.url, { cache: 'no-store' });
 
         if (!response.ok) {
             return NextResponse.json(

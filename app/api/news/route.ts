@@ -21,7 +21,7 @@ export async function GET() {
             throw error;
         }
 
-        const response = await fetch(blobUrl);
+        const response = await fetch(blobUrl, { cache: 'no-store' });
 
         if (!response.ok) {
             throw new Error(`Failed to fetch weeklyNews.json: ${response.status} ${response.statusText}`);

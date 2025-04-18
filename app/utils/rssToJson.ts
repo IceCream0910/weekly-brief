@@ -26,7 +26,7 @@ export interface RssFeed {
  */
 export async function fetchRssFeed(url: string): Promise<RssFeed> {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) throw new Error('피드 요청 실패');
         const xmlText = await response.text();
 

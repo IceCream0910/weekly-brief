@@ -20,7 +20,7 @@ function AINews() {
     const router = useRouter();
 
     useEffect(() => {
-        fetch('/api/ainews/get')
+        fetch('/api/ainews/get', { cache: 'no-store' })
             .then((res) => res.json())
             .then((data) => {
                 setNews(data.items);

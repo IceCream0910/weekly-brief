@@ -17,7 +17,7 @@ export default function AllNews() {
 
     useEffect(() => {
         getCurrentWeekLabel();
-        fetch('/api/news')
+        fetch('/api/news', { cache: 'no-store' })
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
