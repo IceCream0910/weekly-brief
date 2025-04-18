@@ -152,7 +152,7 @@ async function handleUpdate() {
     }
 
     const existingUrls = new Set(existingNewsItems.map(item => item.link));
-    const uniqueNewItems = newNewsItems.filter(item => item.link && !existingUrls.has(item.link));
+    const uniqueNewItems = newNewsItems.filter((item: { link?: string }) => item.link && !existingUrls.has(item.link));
 
     const combinedNewsItems = [...uniqueNewItems, ...existingNewsItems];
 
