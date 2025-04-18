@@ -121,7 +121,7 @@ async function handleUpdate() {
     const newNewsItems = newsFeed.items || [];
 
     const { blobs } = await list();
-    const weeklyNewsBlob = blobs.find(blob => blob.pathname === 'weeklyNews.json');
+    const weeklyNewsBlob = blobs.find(blob => blob.pathname === 'aiWeeklyNews.json');
 
     let existingNewsItems: any[] = [];
     let lastUpdateWeekLabel: string | null = null;
