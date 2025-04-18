@@ -115,7 +115,13 @@ async function callLlmApi(newsData: any) {
 async function handleUpdate() {
     const currentWeekLabel = getCurrentWeekLabel(new Date());
 
-    const newsFeed = await fetchRssFeed("https://rss.app/feeds/tLVoDtyUrmq0EQMf.xml");
+    const rssUrl = "https://rss.app/feeds/tLVoDtyUrmq0EQMf.xml";
+    const rssResponse = await fetch(`${process.env.APP_URL}/api/rssToJson?url=${encodeURIComponent(rssUrl)}`);
+
+    if (!rssResponse.ok) {
+        throw new Error(`Failed to fetch RSS feed via API: ${rssResponse.status} ${await rssResponse.text()}`);
+    }
+    const newsFeed = await rssResponse.json();
     const newNewsItems = newsFeed.items || [];
 
     const { blobs } = await list();
