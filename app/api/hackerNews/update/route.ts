@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchRssFeed } from '@/app/utils/rssToJson';
 import { list, put } from '@vercel/blob';
 
-export const config = {
-    runtime: 'edge'
-};
+export const runtime = 'edge';
 
 async function callLlmApi(newsData: any) {
     try {
