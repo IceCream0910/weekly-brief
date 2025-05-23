@@ -41,13 +41,15 @@ function AINews() {
         <div className="mt-6">
             <h3 className="text-base font-semibold">이번 주에 나온 AI 소식이에요.</h3>
 
-            <HorizontalScroller children={[
-                <Spacer key={'s-0'} x={1} />,
-                ...news.map((item, index) => (
-                    <CardView key={index} description={item.description} href={item.link} />
-                )),
-                <Spacer key={'s-0'} x={1} />
-            ]} />
+            {news &&
+                <HorizontalScroller children={[
+                    <Spacer key={'s-0'} x={1} />,
+                    ...news.map((item, index) => (
+                        <CardView key={index} description={item.description} href={item.link} />
+                    )),
+                    <Spacer key={'s-0'} x={1} />
+                ]} />
+            }
 
             <StreamText text={summary}
                 delay={25}

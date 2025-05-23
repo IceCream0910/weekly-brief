@@ -42,13 +42,16 @@ function News() {
         <div className="mt-6">
             <h3 className="text-base font-semibold">이번 주 주요 뉴스를 요약해줄게요.</h3>
 
-            <HorizontalScroller children={[
-                <Spacer key={'s-0'} x={1} />,
-                ...news.map((item, index) => (
-                    <CardView key={index} title={item.title} image={item.image} description={item.description} href={item.link} />
-                )),
-                <Spacer key={'s-0'} x={1} />
-            ]} />
+            {news &&
+                <HorizontalScroller children={[
+                    <Spacer key={'s-0'} x={1} />,
+                    ...news.map((item, index) => (
+                        <CardView key={index} title={item.title} image={item.image} description={item.description} href={item.link} />
+                    )),
+                    <Spacer key={'s-0'} x={1} />
+                ]} />
+            }
+
 
             <StreamText text={summary}
                 delay={25}

@@ -37,7 +37,7 @@ export default function Home() {
 
       <News />
       <Spacer y={8} />
-      <AINews />
+      {/* <AINews /> */}
       <Spacer y={8} />
       <HackerNews />
       <Spacer y={16} />
