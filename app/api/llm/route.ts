@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
                         throw new Error('GEMINI_API_KEY is not defined');
                     }
 
-                    const MODEL_ID = "gemini-2.5-flash-preview-05-20";
+                    const MODEL_ID = "gemini-flash-lite-latest";
                     const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${GEMINI_API_KEY}`;
 
                     // Interval to send pending status while waiting for response
